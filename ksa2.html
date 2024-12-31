@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload File to GitHub</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <h1>Upload File to GitHub</h1>
+    <input type="file" id="fileInput" />
+    <button onclick="uploadFile()">Upload to GitHub</button>
+    <script>
+      function uploadFileToGitHub(
+        fileContent,
+        filePath,
+        commitMessage,
+        repoDetails,
+        token
+      ) {
+        const url = `https://api.github.com/repos/${repoDetails.owner}/${repoDetails.repo}/contents/${filePath}`;
+        const data = {
+          message: commitMessage,
+          content: btoa(fileContent),
+          branch: repoDetails.branch || "main",
+        };
+        $.ajax({
+          url: url,
+          type: "PUT",
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: "application/vnd.github.v3+json",
+          },
+          data: JSON.stringify(data),
+          success: function (response) {
+            console.log("File uploaded successfully:", response);
+            alert("File uploaded successfully!");
+          },
+          error: function (xhr, status, error) {
+            console.error("Error uploading file:", error);
+            alert("Error uploading file!");
+          },
+        });
+      }
+      function uploadFile() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        if (!file) {
+          alert("Please select a file first!");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const fileContent = e.target.result;
+          const filePath = "path/to/your/file/" + file.name;
+          const commitMessage = "Upload new file";
+          const repoDetails = {
+            owner: "Al-Rouman",
+            repo: "KSA-2",
+            branch: "main",
+          };
+          const token = "your-personal-access-token";
+          uploadFileToGitHub(
+            fileContent,
+            filePath,
+            commitMessage,
+            repoDetails,
+            token
+          );
+        };
+        reader.readAsBinaryString(file);
+      }
+    </script>
+  </body>
+</html>
